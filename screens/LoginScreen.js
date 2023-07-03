@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, StatusBar, TextInput, Button, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, TextInput, Button, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import app from '../src/config/firebase';
 import { Card } from 'react-native-paper';
 import { useState } from 'react';
+import { ScrollView } from 'react-native-web';
 
 
 

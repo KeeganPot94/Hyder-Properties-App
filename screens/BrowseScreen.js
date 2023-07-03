@@ -1,7 +1,7 @@
 import { FlatList, Pressable, StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native'
 import React, {useEffect, useState} from 'react'
 import { db } from '../src/config/firebase';
-import { collection, doc, getDocs } from "firebase/firestore"; 
+import { collection, doc, query, where, getDocs } from "firebase/firestore"; 
 import { useNavigation } from '@react-navigation/native';
 
 const ListFooter = () => {
@@ -86,19 +86,96 @@ const BrowseScreen = () => {
   // Screen Navigation start
   const navigation = useNavigation()
 
-    const handleProp1 = () => {
-    navigation.navigate('Prop1');
-    };
-    const handleProp2 = () => {
-      navigation.navigate('Prop2');
-      };
-      const handleProp3 = () => {
-        navigation.navigate('Prop3');
-        };
+  const handleProp = (apartmentNumber) => {
+    if (apartmentNumber === 105){
+      navigation.navigate('Prop3')
+    } else if (apartmentNumber === 120) {
+  
+      navigation.navigate('Prop2')
+    } else if (apartmentNumber === 200) {
+      navigation.navigate('Prop1')
+    }
+  };
     const handleMenu = () => {
       navigation.navigate('Menu');
-      };
+    };
   // Screen Navigation end
+
+  const FetchData = async () => {
+      
+    const querySnapshot = await getDocs(collection(db, "Properties"));
+    try {
+      
+      querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data());
+      
+      const {apartmentNumber, complexName, imageUrl, noOfBed, noOfBath, sizeinsqmeters} = doc.data();
+      
+      properties.push({
+          id: doc.id,
+          apartmentNumber,
+          complexName,
+          imageUrl,
+          noOfBed,
+          noOfBath,
+          sizeinsqmeters
+      });
+
+      console.log(properties);
+      setPropertyList(properties);
+    });
+
+    }catch (error) {
+      console.log('Error retrieving data:', error);
+    }
+  }; 
+
+  // Search Bar Function start
+  const FetchSpecificData = async () => {
+    const field = "apartmentNumber"
+    const q = query(collection(db, "Properties"), where(field, "==", selectedItem));
+    const querySnapshot = await getDocs(q);
+    const properties = [];
+    try {
+           
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
+        
+        const {apartmentNumber, complexName, imageUrl, noOfBath, noOfBed, sizeinsqmeters} = doc.data();
+        
+        properties.push({
+            id: doc.id,
+            apartmentNumber,
+            complexName,
+            imageUrl,
+            noOfBath,
+            noOfBed,
+            sizeinsqmeters
+        });
+        console.log(properties);
+      });
+      setPropertyList(properties);
+      }catch (error) {
+          console.log('Error retrieving data:', error);
+        }     
+      };
+
+  const refillProperties = async () => {
+    setDropdownOpen(!dropdownOpen)
+    FetchData();
+  }
+
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleDropdownSelect = (item) => {
+    setSelectedItem(item);
+    setDropdownOpen(false);
+  };
+  // Search Bar Function end
 
   return (
     <View style={{flex: 1,  alignItems: 'center'}}>
@@ -120,6 +197,43 @@ const BrowseScreen = () => {
           </Text>
         </View>
       </View>
+
+      {/* Search Bar start*/}
+      <View style={styles.searchContainer}>
+        {/* Search Button*/}
+        <TouchableOpacity
+          style={styles.button1}
+          onPress={() => FetchSpecificData()}
+        />
+        <TouchableOpacity
+          style={styles.dropdownButton}
+          onPress={() => refillProperties()}>
+          <Text style={styles.dropdownButtonText}>
+            {selectedItem ? selectedItem.label : 'Browse via apartment number'}
+          </Text>
+        </TouchableOpacity>
+        {dropdownOpen && (
+          <View style={styles.dropdownMenu}>
+            {propertyList.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.dropdownMenuItem,
+                  selectedItem === item ? styles.dropdownMenuItemSelected : null,
+                ]}
+                onPress={() => handleDropdownSelect(item.apartmentNumber)}>
+                <Text style={styles.dropdownMenuItemText}>{item.apartmentNumber}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+        <TouchableOpacity
+          style={styles.button2}
+          onPress={() => FetchSpecificData()}
+        ><Text style={styles.buttonLabel}>Search</Text></TouchableOpacity>
+      </View>
+      {/* Search Bar end*/}
+
       <FlatList 
         style={{height: '100%'}}
         data={propertyList}
@@ -127,7 +241,7 @@ const BrowseScreen = () => {
         renderItem={({item}) => (
         <Pressable style ={{textAlign: 'center'} }> 
           <View>
-            <Pressable onPress={handleProp1}>
+            <Pressable onPress={() => handleProp(item.apartmentNumber)}>
               <Image style={styles.image}source={{ uri: item.imageUrl }} />
               <View style={styles.content}>
                 <View style={styles.contentLeft}>
@@ -185,6 +299,28 @@ const styles = StyleSheet.create({
     color: '#FFFFFF'
   },
   // Header Container end
+  // Search Container start
+  searchContainer: {
+    width: 330,
+    margin: 10,
+    backgroundColor: '#dde4e6',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10
+  },
+  button2: {
+    width: 100,
+    height: 30,
+    backgroundColor: '#047FB3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    marginTop: 5
+  },
+  buttonLabel: {
+    color: 'white'
+  },
+  // Search Container end
   // Property Conatiner start
   image: {
     width: 330,
