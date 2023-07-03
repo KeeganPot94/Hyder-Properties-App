@@ -1,0 +1,3 @@
+export const GOOGLE_MAPS_API_KEY="AIzaSyCG9WPcj9LjTM0iEfWP4c5Vw2WvM8v3KU4";
+
+export const FIREBASE_API_KEY="AIzaSyDox51ATfaHvjtRVys7ba6wlV44O-UKPuw";
