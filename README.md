@@ -9,6 +9,6 @@ What I Learned:
 - Experience the difficulties of cross-platform development.
 - Utilisation of native device-dependant features.
 
-Planning and Development:
+Documentation:
  - https://drive.google.com/drive/folders/1NYJLL1vu9qW0Cryj_pXYv5sZwUHOOTLe?usp=sharing
  - Last Edited on 2023-06-28
